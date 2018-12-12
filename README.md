@@ -51,11 +51,16 @@ library(urca)
 library(forecast)
 ```
 Ok start with a linear model and estimate the power
+Variables to manipulate
+n total
+slope
+n for intervention
+
 ```{r}
 matt_power = function(){
-n = 12*12
+n = 12*14
 slope = .25
-intervention = c(rep(0,n/2), rep(1,n/2))
+intervention = c(rep(0,n*.75), rep(1,n*.25))
 y = 0 + slope*intervention+rnorm(n, mean = 0, sd= .5)
 dat = data.frame(y, intervention)
 model_lm = lm(y ~ intervention, data = dat)
@@ -74,10 +79,10 @@ Now try with count data
 We want about a 25% decrease (keep it as increase for simplicity) in the odds of success, which means that we need a parameter estimate of .22, because we get the exp later on
 ```{r}
 matt_power_p = function(){
-n = 12*12
+n = 12*14
 b0 = 0
 b1 = .22
-intervention = c(rep(0,n/2), rep(1,n/2))
+intervention = c(rep(0,n*.75), rep(1,n*25))
 y = rpois(n, exp(b0+b1*intervention))
 dat = data.frame(y, intervention)
 dat
@@ -86,7 +91,7 @@ model_p = summary(model_p)
 power = ifelse(model_lm_sum$coefficients[,4][2] < .05, 1, 0)
 }
 
-reps = 100
+reps = 10000
 power = data.frame(replicate(reps, matt_power()))
 power = apply(power, 2, sum)/reps
 power
